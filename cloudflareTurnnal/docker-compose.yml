@@ -1,0 +1,6 @@
+version: '3.9'
+services:
+    cloudflared:
+        command: 'tunnel --no-autoupdate run --token eyJhIjoiYTExZWI3Y2I4MGRlN2NlNzhhOWMyNmJiZDJmMzQyYjIiLCJ0IjoiZTY2ODZkNTEtOWFkZi00MWMwLWJlY2QtZjI5NjFkOWE2NTBmIiwicyI6IlpEVmxNRGRsWXpndE1qSTJZeTAwWWpsakxXRmlPR0l0WVdGak16aGpOemsyTW1RMSJ9'
+        image: 'cloudflare/cloudflared:latest'
+        restart: unless-stopped

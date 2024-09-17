@@ -1,0 +1,19 @@
+version: "3"
+
+services:
+  pihole:
+    container_name: pihole
+    image: pihole/pihole:latest
+    environment:
+      TZ: 'Uganda/Kampala'                # Replace with your timezone, e.g., 'America/New_York'
+      WEBPASSWORD: 'Nansubuga.billy@21'   # Replace with your desired Pi-hole admin password
+    volumes:
+      - './etc-pihole:/etc/pihole'        # Persistent storage for Pi-hole data
+      - './etc-dnsmasq.d:/etc/dnsmasq.d'  # Persistent storage for DNS configuration
+    ports:
+      - '53:53/tcp'
+      - '53:53/udp'
+      - '3004:80'                         # Web interface accessible on port 80
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN                         # Required for Pi-hole's DNS server functionality
