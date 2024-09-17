@@ -6,7 +6,7 @@ services:
     image: pihole/pihole:latest
     environment:
       TZ: 'Uganda/Kampala'                # Replace with your timezone, e.g., 'America/New_York'
-      WEBPASSWORD: 'Nansubuga.billy@21'   # Replace with your desired Pi-hole admin password
+      WEBPASSWORD: 'YourPassword'   # Replace with your desired Pi-hole admin password
     volumes:
       - './etc-pihole:/etc/pihole'        # Persistent storage for Pi-hole data
       - './etc-dnsmasq.d:/etc/dnsmasq.d'  # Persistent storage for DNS configuration
