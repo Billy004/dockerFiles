@@ -38,5 +38,5 @@ Beautiful, self-hosted status page that monitors uptime of websites and services
 
 1. **Clone the Repository**
    ```bash
-   git clone https://github.com/Billy004/internet-monitoring.git
-   cd internet-monitoring
+   git clone https://github.com/Billy004/dockerFiles
+   cd dockerFiles
