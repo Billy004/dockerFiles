@@ -8,3 +8,9 @@
 /elk/filebeat/
 /elk/filebeat_data/
 
+# DevOps project data directories
+/devops/gitlab/
+/devops/mysql_data/
+/devops/redis_data/
+/devops/runner/
+/devops/.env
