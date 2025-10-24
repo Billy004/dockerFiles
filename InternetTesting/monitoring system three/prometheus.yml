@@ -1,7 +1,0 @@
-global:
-  scrape_interval: 1m
-
-scrape_configs:
-  - job_name: 'speedtest'
-    static_configs:
-      - targets: ['speedtest-exporter:8000']
