@@ -1,2 +1,10 @@
 /Ticketing & ITSM/glpi_data/
 /Ticketing & ITSM/glpi_db/
+/wordpress/wordpress_data/
+/wordpress/db_data/
+/jupyterLab/work/
+/elk/elasticsearch_data/
+/elk/logstash/
+/elk/filebeat/
+/elk/filebeat_data/
+

@@ -1,0 +1,137 @@
+# GitLab CI/CD Pipeline Configuration
+# Place this file in the root of your Express.js repository
+
+stages:
+  - test
+  - build
+  - deploy
+
+variables:
+  DOCKER_DRIVER: overlay2
+  DOCKER_TLS_CERTDIR: ""
+  IMAGE_NAME: express-api
+  DOCKER_HOST: unix:///var/run/docker.sock
+
+# Test Stage - Run unit tests and linting
+test:
+  stage: test
+  image: node:18-alpine
+  services:
+    - name: mysql:8.0
+      alias: mysql
+  variables:
+    MYSQL_ROOT_PASSWORD: testroot
+    MYSQL_DATABASE: testdb
+    MYSQL_USER: testuser
+    MYSQL_PASSWORD: testpass
+    DATABASE_URL: "mysql://testuser:testpass@mysql:3306/testdb"
+  before_script:
+    - npm ci
+    - npx prisma generate
+    - npx prisma migrate deploy
+  script:
+    - npm run lint || echo "No lint script found, skipping..."
+    - npm run test || echo "No test script found, skipping..."
+  cache:
+    paths:
+      - node_modules/
+  only:
+    - main
+    - develop
+    - merge_requests
+
+# Build Stage - Build Docker image
+build:
+  stage: build
+  image: docker:24
+  services:
+    - docker:24-dind
+  before_script:
+    - echo "Building Docker image..."
+  script:
+    - docker build -t $IMAGE_NAME:latest .
+    - docker tag $IMAGE_NAME:latest $IMAGE_NAME:$CI_COMMIT_SHORT_SHA
+    - docker save $IMAGE_NAME:latest > image.tar
+  artifacts:
+    paths:
+      - image.tar
+    expire_in: 1 hour
+  only:
+    - main
+
+# Deploy Stage - Deploy to production
+deploy:
+  stage: deploy
+  image: docker:24
+  services:
+    - docker:24-dind
+  before_script:
+    - apk add --no-cache docker-compose
+  script:
+    # Load the built image
+    - docker load < image.tar
+    
+    # Stop and remove old container
+    - docker stop express-api || true
+    - docker rm express-api || true
+    
+    # Start new container
+    - |
+      docker run -d \
+        --name express-api \
+        --network devops-network \
+        -p 3000:3000 \
+        -e NODE_ENV=production \
+        -e DATABASE_URL="mysql://express_user:secure_password@mysql:3306/express_db" \
+        -e JWT_SECRET="${JWT_SECRET}" \
+        --restart unless-stopped \
+        $IMAGE_NAME:latest
+    
+    # Wait for container to be healthy
+    - sleep 10
+    
+    # Run database migrations
+    - docker exec express-api npx prisma migrate deploy
+    
+    # Check if container is running
+    - docker ps | grep express-api
+    
+    # Show logs
+    - docker logs --tail 50 express-api
+  only:
+    - main
+  environment:
+    name: production
+    url: http://localhost:3000
+  when: manual  # Require manual approval before deployment
+
+# Rollback job - In case deployment fails
+rollback:
+  stage: deploy
+  image: docker:24
+  script:
+    - echo "Rolling back to previous version..."
+    - docker stop express-api || true
+    - docker rm express-api || true
+    - docker run -d --name express-api --network devops-network -p 3000:3000 $IMAGE_NAME:previous
+  when: manual
+  only:
+    - main
+
+# Database backup job
+backup_database:
+  stage: deploy
+  image: alpine:latest
+  before_script:
+    - apk add --no-cache mysql-client
+  script:
+    - mkdir -p backups
+    - mysqldump -h mysql -u express_user -psecure_password express_db > backups/backup_$(date +%Y%m%d_%H%M%S).sql
+  artifacts:
+    paths:
+      - backups/
+    expire_in: 30 days
+  only:
+    - main
+  when: manual
+

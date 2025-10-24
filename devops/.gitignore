@@ -1,0 +1,43 @@
+# Environment variables
+.env
+
+# GitLab data
+gitlab/config/
+gitlab/logs/
+gitlab/data/
+
+# GitLab Runner config
+runner/config/
+
+# Database data
+mysql_data/
+mysql_init/
+
+# Redis data
+redis_data/
+
+# Application code (managed separately)
+app/
+!app/.gitkeep
+
+# Logs
+*.log
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Backup files
+*.backup
+*.bak
+*.sql
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+

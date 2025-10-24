@@ -1,0 +1,10 @@
+services: 
+    influxdb:
+        image: arm64v8/influxdb:1.8.10
+        privileged: true
+
+    telegraf:
+        build: 
+            context: telegraf/.
+            args:
+                DOCKERIZE_ARCH: armhf

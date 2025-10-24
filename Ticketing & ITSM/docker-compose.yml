@@ -1,0 +1,30 @@
+version: '3.8'
+services:
+  mariadb:
+    image: mariadb:10.11
+    container_name: glpi-db
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass123
+      MYSQL_DATABASE: glpi
+      MYSQL_USER: glpi_user
+      MYSQL_PASSWORD: glpi_pass
+    volumes:
+      - ./glpi_db:/var/lib/mysql
+    restart: always
+
+  glpi:
+    image: diouxx/glpi:latest
+    container_name: glpi
+    ports:
+      - "8082:80"
+    environment:
+      TIMEZONE: Africa/Kampala
+    volumes:
+      - ./glpi_data:/var/www/html/glpi
+    depends_on:
+      - mariadb
+    restart: always
+
+volumes:
+  glpi_db:
+  glpi_data:
